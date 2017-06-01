@@ -1,9 +1,15 @@
 
 Keystroke authentication software that is based on Mahalanobis distance. 
 
-The project uses the Mahalanobis NN single class classifier to compare if the attempted typing rhythm is close enough to the benchmark rhythm (De Maesschalck, R 2000, pp.11-18). A user must register to be able to login. At the time of registration, the user has to enter the password ten times to train the classifier. For each password entry, the KeyDown (when you press the key) and KeyUp (when you take your fingers off the key) times are noted for each key pressed.
-These vectors are cleaned by removing, tab, enter, return keys and adjusting for the backspace button. Any keys except these, even altKey is considered a part of the password. The cleaned KeyUp and KeyDown vectors are used to construct the rhythm vector. Each rhythm vector for a n-keypress password is composed as [HT1, FT1, HT2, FT2, ... HTn-1, FTn-1, HTn]. HT is the hold time for which the key was pressed. FT is the flight time difference between KeyUp of current key and KeyDown of next key.
-For cases where a key is pressed before the previous key is released, the flight time will be negative. Ten such vectors are recorded and sorted into three categories
+The project uses the Mahalanobis NN single class classifier to compare if the attempted typing rhythm is close enough to the benchmark rhythm.
+A user must register to be able to login. At the time of registration, the user has to enter the password ten times to train the classifier.
+For each password entry, the KeyDown (when you press the key) and KeyUp (when you take your fingers off the key) times are noted for each key pressed.
+These vectors are cleaned by removing, tab, enter, return keys and adjusting for the backspace button. Any keys except these,
+even altKey is considered a part of the password. The cleaned KeyUp and KeyDown vectors are used to construct the rhythm vector.
+Each rhythm vector for a n-keypress password is composed as [HT1, FT1, HT2, FT2, ... HTn-1, FTn-1, HTn]. HT is the hold time for which the key was pressed.
+FT is the flight time difference between KeyUp of current key and KeyDown of next key.
+For cases where a key is pressed before the previous key is released, the flight time will be negative.
+Ten such vectors are recorded and sorted into three categories
 •	Vector
     o	Each keystroke is separate. All keystroke timings are recorded.
 •	Vector-miss
@@ -12,7 +18,9 @@ For cases where a key is pressed before the previous key is released, the flight
     o	 No keystroke was missed. However, there is overlap between keys, meaning one key was pressed before the last key was released. 
 
 
-This categorization is done for two purposes - outlier removal and comparison of each login attempt to its matching class of vector only (noise reduction). Along with the vectors, 150 multiplied by the largest value in the inverse covariance matrix of the vectors in that category is also stored for threshold calculation. Actual password is also stored in the text file.
+This categorization is done for two purposes - outlier removal and comparison of each login attempt to its matching class of vector only (noise reduction).
+Along with the vectors, 150 multiplied by the largest value in the inverse covariance matrix of the vectors in that category is also stored for threshold calculation.
+Actual password is also stored in the text file.
 
 When the user now tries to log in. The attempt of password entry is first compared to the text. If the password text matches, the rhythm vector is created from the keyup and keydown vector.
 This rhythm vector is then compared with each of the stored vectors in the category it falls into, and their distance is calculated
@@ -20,4 +28,6 @@ This rhythm vector is then compared with each of the stored vectors in the categ
  (distance = sqrt (|S^T Cov^-1 S|)
  
 where S^T = transpose of vector, Cov^-1 is the inverse of covariance matrix, and S is the vector)
-The minimum distance from the benchmark vectors is taken and compared to a threshold(=4 times the value recorded in the file, which roughly translates to a ~10-15% deviation in HT/FT values with a similar shape). If this minimum distance falls within the threshold, this is considered as a successful login else it is rejected as a failed login. After the successful login (Figure 3.1.7), a comparison of the login rhythm vector with the benchmark rhythm vectors is shown.
+The minimum distance from the benchmark vectors is taken and compared to a threshold(=4 times the value recorded in the file, which roughly translates to a ~10-15% deviation in HT/FT values with a similar shape).
+If this minimum distance falls within the threshold, this is considered as a successful login else it is rejected as a failed login. 
+After the successful login (Figure 3.1.7), a comparison of the login rhythm vector with the benchmark rhythm vectors is shown.
